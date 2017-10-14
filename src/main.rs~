@@ -1,0 +1,61 @@
+extern crate rand;
+
+use std::env;
+use rand::Rng;
+
+fn main() {
+    let mut args = env::args();
+    let computer_hand = rand::thread_rng().gen_range(0, 2);
+    if let Some(hand) = args.nth(1) {
+        let result = judge(&hand, &computer_hand);
+        println!(
+            "Your hand is {}, computer hand is {}",
+            &hand,
+            &computer_hand
+        );
+        println!("{}", result);
+    }
+}
+
+/// 入力された引数の手と、乱数生成されたコンピュータ側の手を比較して勝ち負けを判定します。
+/// 0 = グー、チョキ = 1、パー = 2 と解釈します。
+/// 判定ロジックは「(自分の手 - 相手の手 + 3) % 3」で、
+/// その結果が0なら引き分け、1なら負け、2なら勝ちと判定します。
+fn judge(hand: &String, computer_hand: &i32) -> String {
+    let hand_int = &hand.parse::<i32>().unwrap();
+    let answer = (hand_int - computer_hand + 3) % 3;
+    if answer == 0 {
+        String::from("draw")
+    } else if answer == 1 {
+        String::from("lose...")
+    } else if answer == 2 {
+        String::from("win!")
+    } else {
+        String::from("unexpected value")
+    }
+}
+
+#[test]
+fn test_rand() {
+    let generated = rand::thread_rng().gen_range(0, 2);
+    println!("Generated: {}", generated);
+    assert!(generated <= 2 && generated >= 0);
+}
+
+#[test]
+fn test_judge_draw_logic() {
+    let result = judge(&String::from("0"), &0);
+    assert!(result == String::from("draw"));
+}
+
+#[test]
+fn test_judge_lose_logic() {
+    let result = judge(&String::from("0"), &2);
+    assert!(result == String::from("lose..."));
+}
+
+#[test]
+fn test_judge_win_logic() {
+    let result = judge(&String::from("0"), &1);
+    assert!(result == String::from("win!"));
+}
